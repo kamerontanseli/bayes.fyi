@@ -1500,6 +1500,20 @@ chalk@^4.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
+chi-squared-test@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/chi-squared-test/-/chi-squared-test-1.1.0.tgz#7c00240c6071a6178c42551670fedff3e7bbe442"
+  integrity sha512-L/sVYyJbpIrIkaNd9m7SCyoeI6GrB9pScX2UQ6WRqMsgrtxcz0oR/a3MjmUpWngaR0lfys+5ondKHGXPfdfL2Q==
+  dependencies:
+    chi-squared "^1.1.0"
+
+chi-squared@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/chi-squared/-/chi-squared-1.1.0.tgz#892865cffa8e0a720f921bfc9c635c19ac2a346d"
+  integrity sha512-IFJA5igW44wzi7VHSsBcuHQ1+sF6noKRK6eFb+so4v9A/dH23RElM+8UBCi6+kWSINB/hDPNH+KDBCazPuKVwg==
+  dependencies:
+    gamma "^1.0.0"
+
 color-convert@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-2.0.1.tgz#72d3a68d598c9bdb3af2ad1e84f21d896abd4de3"
@@ -2065,6 +2079,11 @@ functions-have-names@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/functions-have-names/-/functions-have-names-1.2.3.tgz#0404fe4ee2ba2f607f0e0ec3c80bae994133b834"
   integrity sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==
+
+gamma@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/gamma/-/gamma-1.0.0.tgz#983c1c939fe23d932701585711e1d9a430cb74cb"
+  integrity sha512-bPI4QJKNe/PfuO6PZU7ckMkBk0wEe3iQWx3DadEp5ceiAkJwc8CRukwncOZ5Hk5rc6nNTbIfByZKGz7Vv+xXdw==
 
 get-intrinsic@^1.0.2, get-intrinsic@^1.1.0, get-intrinsic@^1.1.1:
   version "1.1.2"

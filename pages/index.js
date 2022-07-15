@@ -10,8 +10,10 @@ import {
   VerticalBarSeries,
   LabelSeries,
 } from "react-vis";
+import chiSquaredTest from "chi-squared-test";
+import chi2test from "@stdlib/stats-chi2test";
 
-const jStatMod = import('jstat');
+const jStatMod = import("jstat");
 const lnMod = import("@stdlib/math-base-special-ln");
 const betalnMod = import("@stdlib/math-base-special-betaln");
 
@@ -39,7 +41,23 @@ async function calculateProbabilities(alphaA, betaA, alphaB, betaB) {
   return total;
 }
 
-async function calculateExpectedLoss(successesA, failuresA, successesB, failuresB) {
+function SRMCheck(usersA, usersB) {
+  const total = usersA + usersB;
+  const expectedVisitors = Math.floor(total / 2);
+
+  return chiSquaredTest(
+    [usersA, usersB],
+    [expectedVisitors, expectedVisitors],
+    1
+  ).probability;
+}
+
+async function calculateExpectedLoss(
+  successesA,
+  failuresA,
+  successesB,
+  failuresB
+) {
   const controlSample = await betaRVS(successesA, failuresA);
   const variantSample = await betaRVS(successesB, failuresB);
   const zippedValues = controlSample.map((c, i) => [c, variantSample[i]]);
@@ -71,8 +89,9 @@ export default function Home() {
     usersB: 204,
     conversionsB: 23,
     threshold: 95,
-    lossThreshold: 0.05,
+    lossThreshold: 0.06,
   });
+  const [srmPValue, setSrmPValue] = useState(1);
   const [probBWins, setProbBWins] = useState(0);
   const [expectedLoss, setExpectedLoss] = useState({
     control: 0,
@@ -109,6 +128,7 @@ export default function Home() {
     ];
     setProbBWins(await calculateProbabilities(...args));
     setExpectedLoss(await calculateExpectedLoss(...args));
+    setSrmPValue(SRMCheck(usersA, usersB));
   }
 
   function onChangeField(key) {
@@ -138,6 +158,9 @@ export default function Home() {
 
   const BWins =
     probBWins >= threshold / 100 && expectedLoss.control <= lossThreshold;
+
+  const uplift =
+    (conversionsB / usersB - conversionsA / usersA) / (conversionsA / usersA);
 
   return (
     <div className="container">
@@ -312,6 +335,13 @@ export default function Home() {
           >
             <b>Results</b>
           </p>
+          {srmPValue < 0.5 && (
+            <p className="alert">
+              <strong>Possible SRM Alert</strong>. Assuming you intented to have
+              a 50% / 50% split, a Sample Ratio Mismatch (SRM) check indicates
+              there might be a problem with your distribution.
+            </p>
+          )}
           <div className="table">
             <table>
               <thead>
@@ -339,7 +369,11 @@ export default function Home() {
                   <td>Treatment</td>
                   <td>{usersB}</td>
                   <td>{conversionsB}</td>
-                  <td>{((conversionsB / usersB) * 100).toFixed(2)}%</td>
+                  <td>
+                    {((conversionsB / usersB) * 100).toFixed(2)}% (
+                    {uplift > 0 ? "+" : ""}
+                    {(uplift * 100).toFixed(2)}% )
+                  </td>
                   <td>{(Math.max(0, probBWins) * 100).toFixed(2)}%</td>
                   <td>{expectedLoss.control.toFixed(2)}%</td>
                   <td>{BWins ? "✅" : "❌"}</td>

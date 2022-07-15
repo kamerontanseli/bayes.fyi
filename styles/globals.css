@@ -11,6 +11,14 @@ hgroup {
   overflow: auto;
 }
 
+.alert {
+  padding: 12px;
+  background-color: #ff9797;
+  border-radius: 8px;
+  font-size: 0.8em;
+  color: #520e0e;
+}
+
 @media screen and (max-width: 480px) {
   .table th {
     font-size: 0.8em;
