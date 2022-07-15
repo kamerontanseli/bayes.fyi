@@ -11,7 +11,6 @@ import {
   LabelSeries,
 } from "react-vis";
 import chiSquaredTest from "chi-squared-test";
-import chi2test from "@stdlib/stats-chi2test";
 
 const jStatMod = import("jstat");
 const lnMod = import("@stdlib/math-base-special-ln");
