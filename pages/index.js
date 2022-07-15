@@ -1,9 +1,6 @@
 import "react-vis/dist/style.css";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
-import ln from "@stdlib/math-base-special-ln";
-import betaln from "@stdlib/math-base-special-betaln";
-import beta from "@stdlib/random-base-beta";
 import {
   XYPlot,
   XAxis,
@@ -14,16 +11,23 @@ import {
   LabelSeries,
 } from "react-vis";
 
-function betaRVS(successes, failures, size = 10000) {
+const jStatMod = import('jstat');
+const lnMod = import("@stdlib/math-base-special-ln");
+const betalnMod = import("@stdlib/math-base-special-betaln");
+
+async function betaRVS(successes, failures, size = 10000) {
   const results = [];
+  const jStat = (await jStatMod).default;
   for (let i = 0; i < size; i++) {
-    results.push(beta(successes, failures));
+    results.push(jStat.beta.sample(successes, failures));
   }
   return results;
 }
 
-function calculateProbabilities(alphaA, betaA, alphaB, betaB) {
+async function calculateProbabilities(alphaA, betaA, alphaB, betaB) {
   let total = 0;
+  const betaln = (await betalnMod).default;
+  const ln = (await lnMod).default;
   for (let i = 0; i <= alphaB - 1; i++) {
     total += Math.exp(
       betaln(alphaA + i, betaB + betaA) -
@@ -35,9 +39,9 @@ function calculateProbabilities(alphaA, betaA, alphaB, betaB) {
   return total;
 }
 
-function calculateExpectedLoss(successesA, failuresA, successesB, failuresB) {
-  const controlSample = betaRVS(successesA, failuresB);
-  const variantSample = betaRVS(successesB, failuresB);
+async function calculateExpectedLoss(successesA, failuresA, successesB, failuresB) {
+  const controlSample = await betaRVS(successesA, failuresA);
+  const variantSample = await betaRVS(successesB, failuresB);
   const zippedValues = controlSample.map((c, i) => [c, variantSample[i]]);
 
   const controlDiffList = zippedValues.map(([a, b]) => Math.max(a - b, 0));
@@ -62,10 +66,10 @@ export default function Home() {
     { usersA, conversionsA, usersB, conversionsB, threshold, lossThreshold },
     setData,
   ] = useState({
-    usersA: 5000,
-    conversionsA: 25,
-    usersB: 4980,
-    conversionsB: 38,
+    usersA: 203,
+    conversionsA: 13,
+    usersB: 204,
+    conversionsB: 23,
     threshold: 95,
     lossThreshold: 0.05,
   });
@@ -96,15 +100,15 @@ export default function Home() {
     };
   }, [chartContainer]);
 
-  function generateResults() {
+  async function generateResults() {
     const args = [
       conversionsA,
       usersA - conversionsA,
       conversionsB,
       usersB - conversionsB,
     ];
-    setProbBWins(calculateProbabilities(...args));
-    setExpectedLoss(calculateExpectedLoss(...args));
+    setProbBWins(await calculateProbabilities(...args));
+    setExpectedLoss(await calculateExpectedLoss(...args));
   }
 
   function onChangeField(key) {
