@@ -9,9 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@picocss/pico": "^1.5.3",
+    "@stdlib/math-base-special-betaln": "^0.0.6",
+    "@stdlib/math-base-special-ln": "^0.0.6",
+    "@stdlib/random-base-beta": "^0.0.7",
     "next": "12.2.2",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-vis": "^1.11.7"
   },
   "devDependencies": {
     "eslint": "8.19.0",
