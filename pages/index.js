@@ -1,5 +1,6 @@
 import "react-vis/dist/style.css";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import {
   XYPlot,
@@ -10,6 +11,7 @@ import {
   VerticalBarSeries,
   LabelSeries,
 } from "react-vis";
+import ClipboardJS from "clipboard";
 
 const chi2gofMod = import("@stdlib/stats-chi2gof");
 const jStatMod = import("jstat");
@@ -74,12 +76,10 @@ async function calculateExpectedLoss(
 
 export default function Home() {
   const chartContainer = useRef(null);
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [chartWidth, setChartWidth] = useState(330);
-  const [
-    { usersA, conversionsA, usersB, conversionsB, threshold, lossThreshold },
-    setData,
-  ] = useState({
+  const [formData, setData] = useState({
     usersA: 203,
     conversionsA: 13,
     usersB: 204,
@@ -87,6 +87,14 @@ export default function Home() {
     threshold: 95,
     lossThreshold: 0.06,
   });
+  const {
+    usersA,
+    conversionsA,
+    usersB,
+    conversionsB,
+    threshold,
+    lossThreshold,
+  } = formData;
   const [srmPValue, setSrmPValue] = useState(1);
   const [probBWins, setProbBWins] = useState(0);
   const [expectedLoss, setExpectedLoss] = useState({
@@ -95,8 +103,28 @@ export default function Home() {
   });
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const newData = {
+      usersA: Number(params.get("usersA") || 203),
+      conversionsA: Number(params.get("conversionsA") || 13),
+      usersB: Number(params.get("usersB") || 204),
+      conversionsB: Number(params.get("conversionsB") || 23),
+      threshold: Number(params.get("threshold") || 95),
+      lossThreshold: Number(params.get("lossThreshold") || 0.06),
+    };
+    setData(newData);
     setMounted(true);
-    generateResults();
+    generateResults(
+      newData.usersA,
+      newData.conversionsA,
+      newData.usersB,
+      newData.conversionsB
+    );
+    const clipboard = new ClipboardJS("#shareURL");
+
+    return () => {
+      clipboard.destroy();
+    };
   }, []);
 
   useEffect(() => {
@@ -115,16 +143,11 @@ export default function Home() {
     };
   }, [chartContainer]);
 
-  async function generateResults() {
-    const args = [
-      conversionsA,
-      usersA - conversionsA,
-      conversionsB,
-      usersB - conversionsB,
-    ];
+  async function generateResults(uA, cA, uB, cB) {
+    const args = [cA, uA - cA, cB, uB - cB];
     setProbBWins(await calculateProbabilities(...args));
     setExpectedLoss(await calculateExpectedLoss(...args));
-    setSrmPValue(await SRMCheck(usersA, usersB));
+    setSrmPValue(await SRMCheck(uA, uB));
   }
 
   function onChangeField(key) {
@@ -211,7 +234,14 @@ export default function Home() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              generateResults();
+              const params = new URLSearchParams();
+              Object.keys(formData).forEach((key) => {
+                params.set(key, formData[key]);
+              });
+              router.push(`/?${params.toString()}`, `/?${params.toString()}`, {
+                shallow: true,
+              });
+              generateResults(usersA, conversionsA, usersB, conversionsB);
             }}
           >
             <p
@@ -371,7 +401,7 @@ export default function Home() {
               <i>P-Value = {srmPValue.toFixed(5)}</i>
             </p>
           )}
-          <div className="table">
+          <figure>
             <table>
               <thead>
                 <tr>
@@ -409,6 +439,32 @@ export default function Home() {
                 </tr>
               </tbody>
             </table>
+          </figure>
+          <p
+            style={{
+              marginTop: 0,
+              marginBottom: 16,
+              borderBottom: `1px solid #eee`,
+              paddingBottom: 8,
+            }}
+          >
+            <b>Share the results</b>
+          </p>
+          <div className="copy">
+            <input type="url" value={`https://bayes.fyi${router.asPath}`} />{" "}
+            <button
+              id="shareURL"
+              data-clipboard-text={`https://bayes.fyi${router.asPath}`}
+              onClick={(e) => {
+                const element = e.target;
+                element.innerText = "Copied";
+                setTimeout(() => {
+                  element.innerText = "Copy";
+                }, 1500);
+              }}
+            >
+              Copy
+            </button>
           </div>
         </>
       )}
