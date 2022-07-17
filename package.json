@@ -12,6 +12,7 @@
     "@picocss/pico": "^1.5.3",
     "@stdlib/math-base-special-betaln": "^0.0.6",
     "@stdlib/math-base-special-ln": "^0.0.6",
+    "@stdlib/stats-chi2gof": "^0.0.7",
     "chi-squared-test": "^1.1.0",
     "jstat": "^1.9.5",
     "next": "12.2.2",
