@@ -144,6 +144,13 @@ export default function Home() {
   }, [chartContainer]);
 
   async function generateResults(uA, cA, uB, cB) {
+    const params = new URLSearchParams();
+    Object.keys(formData).forEach((key) => {
+      params.set(key, formData[key]);
+    });
+    router.push(`/?${params.toString()}`, `/?${params.toString()}`, {
+      shallow: true,
+    });
     const args = [cA, uA - cA, cB, uB - cB];
     setProbBWins(await calculateProbabilities(...args));
     setExpectedLoss(await calculateExpectedLoss(...args));
@@ -234,13 +241,6 @@ export default function Home() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              const params = new URLSearchParams();
-              Object.keys(formData).forEach((key) => {
-                params.set(key, formData[key]);
-              });
-              router.push(`/?${params.toString()}`, `/?${params.toString()}`, {
-                shallow: true,
-              });
               generateResults(usersA, conversionsA, usersB, conversionsB);
             }}
           >
