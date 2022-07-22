@@ -13,65 +13,37 @@ import {
 } from "react-vis";
 import ClipboardJS from "clipboard";
 
-const chi2gofMod = import("@stdlib/stats-chi2gof");
-const jStatMod = import("jstat");
-const lnMod = import("@stdlib/math-base-special-ln");
-const betalnMod = import("@stdlib/math-base-special-betaln");
+import exp from "@stdlib/math-base-special-exp";
+import logbeta from "@stdlib/math-base-special-betaln";
+import log from "@stdlib/math-base-special-ln";
+import chi2gof from "@stdlib/stats-chi2gof";
 
-async function betaRVS(successes, failures, size = 10000) {
-  const results = [];
-  const jStat = (await jStatMod).default;
-  for (let i = 0; i < size; i++) {
-    results.push(jStat.beta.sample(successes, failures));
-  }
-  return results;
-}
-
-async function calculateProbabilities(alphaA, betaA, alphaB, betaB) {
+function probXBeatsY(a, b, c, d) {
   let total = 0;
-  const betaln = (await betalnMod).default;
-  const ln = (await lnMod).default;
-  for (let i = 0; i <= alphaB - 1; i++) {
-    total += Math.exp(
-      betaln(alphaA + i, betaB + betaA) -
-        ln(betaB + i) -
-        betaln(1 + i, betaB) -
-        betaln(alphaA, betaA)
+  for (let i = 0; i < c; i++) {
+    total += exp(
+      logbeta(a + i, d + b) - log(d + i) - logbeta(1 + i, d) - logbeta(a, b)
     );
   }
-  return total;
+  return 1 - total;
 }
 
-async function SRMCheck(usersA, usersB) {
+function expectedLossForPickingY(a, b, c, d) {
+  const probability = (x, y) => {
+    return exp(logbeta(x + 1, y) - logbeta(x, y));
+  };
+
+  return (
+    probability(a, b) * probXBeatsY(a + 1, b, c, d) -
+    probability(c, d) * probXBeatsY(a, b, c + 1, d)
+  );
+}
+
+function SRMCheck(usersA, usersB) {
   const total = usersA + usersB;
   const expectedVisitors = Math.floor(total / 2);
-  const chi2gof = (await chi2gofMod).default;
 
   return chi2gof([usersA, usersB], [expectedVisitors, expectedVisitors]).pValue;
-}
-
-async function calculateExpectedLoss(
-  successesA,
-  failuresA,
-  successesB,
-  failuresB
-) {
-  const controlSample = await betaRVS(successesA, failuresA);
-  const variantSample = await betaRVS(successesB, failuresB);
-  const zippedValues = controlSample.map((c, i) => [c, variantSample[i]]);
-
-  const controlDiffList = zippedValues.map(([a, b]) => Math.max(a - b, 0));
-  const controlSumDiff = controlDiffList.reduce((a, b) => a + b, 0);
-  const expectedLossControl = (controlSumDiff / 10000) * 100;
-
-  const treatmentDiffList = zippedValues.map(([a, b]) => Math.max(b - a, 0));
-  const treatmentSumDiff = treatmentDiffList.reduce((a, b) => a + b, 0);
-  const expectedLossTreatment = (treatmentSumDiff / 10000) * 100;
-
-  return {
-    control: expectedLossControl,
-    treatment: expectedLossTreatment,
-  };
 }
 
 export default function Home() {
@@ -84,8 +56,8 @@ export default function Home() {
     conversionsA: 13,
     usersB: 204,
     conversionsB: 23,
-    threshold: 95,
-    lossThreshold: 0.06,
+    threshold: 90,
+    lossThreshold: 0.05,
   });
   const {
     usersA,
@@ -143,7 +115,7 @@ export default function Home() {
     };
   }, [chartContainer]);
 
-  async function generateResults(uA, cA, uB, cB) {
+  function generateResults(uA, cA, uB, cB) {
     const params = new URLSearchParams();
     Object.keys(formData).forEach((key) => {
       params.set(key, formData[key]);
@@ -151,10 +123,13 @@ export default function Home() {
     router.push(`/?${params.toString()}`, `/?${params.toString()}`, {
       shallow: true,
     });
-    const args = [cA, uA - cA, cB, uB - cB];
-    setProbBWins(await calculateProbabilities(...args));
-    setExpectedLoss(await calculateExpectedLoss(...args));
-    setSrmPValue(await SRMCheck(uA, uB));
+    const [a, b, c, d] = [cA + 1, uA - cA + 1, cB + 1, uB - cB + 1];
+    setProbBWins(probXBeatsY(c, d, a, b));
+    setExpectedLoss({
+      treatment: expectedLossForPickingY(a, b, c, d),
+      control: expectedLossForPickingY(c, d, a, b),
+    });
+    setSrmPValue(SRMCheck(uA, uB));
   }
 
   function onChangeField(key) {
@@ -183,7 +158,7 @@ export default function Home() {
   ];
 
   const BWins =
-    probBWins >= threshold / 100 || expectedLoss.control <= lossThreshold;
+    probBWins >= threshold / 100 && expectedLoss.treatment <= lossThreshold;
 
   const uplift =
     (conversionsB / usersB - conversionsA / usersA) / (conversionsA / usersA);
@@ -332,6 +307,7 @@ export default function Home() {
                     name="lossThreshold"
                     id="lossThreshold"
                     placeholder="0.05"
+                    step="0.01"
                     value={lossThreshold}
                     onChange={onChangeField("lossThreshold")}
                   />
