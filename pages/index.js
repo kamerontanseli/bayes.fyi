@@ -173,10 +173,10 @@ export default function Home() {
           &amp;
           <a
             target="_blank"
-            href="https://vwo.com/downloads/VWO_SmartStats_technical_whitepaper.pdf"
+            href="https://www.chrisstucchio.com/blog/2014/bayesian_ab_decision_rule.html"
           >
             {" "}
-            VWO
+            Chris Stucchio
           </a>
           .
         </h3>
