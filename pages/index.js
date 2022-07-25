@@ -16,7 +16,6 @@ import ClipboardJS from "clipboard";
 import exp from "@stdlib/math-base-special-exp";
 import logbeta from "@stdlib/math-base-special-betaln";
 import log from "@stdlib/math-base-special-ln";
-import chi2gof from "@stdlib/stats-chi2gof";
 
 function probXBeatsY(a, b, c, d) {
   let total = 0;
@@ -37,13 +36,6 @@ function expectedLossForPickingY(a, b, c, d) {
     probability(a, b) * probXBeatsY(a + 1, b, c, d) -
     probability(c, d) * probXBeatsY(a, b, c + 1, d)
   );
-}
-
-function SRMCheck(usersA, usersB) {
-  const total = usersA + usersB;
-  const expectedVisitors = Math.floor(total / 2);
-
-  return chi2gof([usersA, usersB], [expectedVisitors, expectedVisitors]).pValue;
 }
 
 export default function Home() {
@@ -67,7 +59,6 @@ export default function Home() {
     threshold,
     lossThreshold,
   } = formData;
-  const [srmPValue, setSrmPValue] = useState(1);
   const [probBWins, setProbBWins] = useState(0);
   const [expectedLoss, setExpectedLoss] = useState({
     control: 0,
@@ -129,7 +120,6 @@ export default function Home() {
       treatment: expectedLossForPickingY(a, b, c, d),
       control: expectedLossForPickingY(c, d, a, b),
     });
-    setSrmPValue(SRMCheck(uA, uB));
   }
 
   function onChangeField(key) {
@@ -369,14 +359,6 @@ export default function Home() {
           >
             <b>Results</b>
           </p>
-          {srmPValue <= 0.05 && (
-            <p className="alert">
-              <strong>Possible SRM Alert</strong>. Assuming you intented to have
-              a 50% / 50% split, a Sample Ratio Mismatch (SRM) check indicates
-              there might be a problem with your distribution.{" "}
-              <i>P-Value = {srmPValue.toFixed(5)}</i>
-            </p>
-          )}
           <figure>
             <table>
               <thead>
