@@ -449,7 +449,7 @@ export default function tTest() {
                     {groups.map((g, i) => (
                         <div key={i} className="card-inputs">
                             <p className="card-inputs__title">
-                                {i === 0 ? <b>Control</b> : <input type="text" value={g.name} onChange={handleUpdateGroup('name', i)} />}
+                                <input type="text" value={g.name} onChange={handleUpdateGroup('name', i)} />
                                 {groups.length > 2 && i !== 0 && (
                                     <button onClick={() => {
                                         setGroups(groups.filter((_, gi) => gi !== i))
@@ -501,16 +501,16 @@ export default function tTest() {
                         </div>
                         {variantsResults.map((v, i) => (
                             <div className={`result result--${v.pValue <= significance ? `sig-${v.relativeDiff > 0 ? 'pos' : 'neg'}` : 'neutral'}`} key={i}>
-                                <p className="result-title">{v.pValue <= significance ? `Significant ${v.relativeDiff >= 0 ? 'positive' : 'negative'} result` : 'No significant difference'} (Control vs {v.variant.name})</p>
+                                <p className="result-title">{v.pValue <= significance ? `Significant ${v.relativeDiff >= 0 ? 'positive' : 'negative'} result` : 'No significant difference'} ({control.name} vs {v.variant.name})</p>
                                 {v.pValue <= significance ? (
                                     <p className="result-body">{v.variant.name}'s observed mean ({round(v.variant.mean)}) was {round(v.relativeDiff) * 100}% {v.relativeDiff > 0 ? 'higher' : 'lower'} than
-                                        control's mean of ({round(control.mean)}). You can be {round(1 - v.pValue) * 100}% confident
+                                        {control.name}'s mean of ({round(control.mean)}). You can be {round(1 - v.pValue) * 100}% confident
                                         that this result is a consequence of the changes you made and not a result of
                                         random chance (p={v.pValue.toFixed(4)}).</p>
                                 ) : (
                                     <p className="result-body">The observed difference in means ({round(v.relativeDiff) * 100}%)
                                         isn't big enough to declare a significant winner. There is no real
-                                        difference in performance between Control and {v.variant.name} or you need to collect
+                                        difference in performance between {control.name} and {v.variant.name} or you need to collect
                                         more data (p={v.pValue.toFixed(4)}).v</p>
                                 )}
                             </div>
@@ -524,7 +524,7 @@ export default function tTest() {
                                 <BoxPlot
                                     series={[
                                         {
-                                            x: "Control",
+                                            x: control.name,
                                             y: gen(control.mean * 1, control.stddev * 1)
                                         },
                                         ...variantsResults.map(v => ({
@@ -538,7 +538,7 @@ export default function tTest() {
                                 <p><b>Means</b></p>
                                 <BarPlot
                                     series={[{
-                                        x: 'Control',
+                                        x: control.name,
                                         y: control.mean,
                                         fillColor: '#5d5d60'
                                     }].concat(
