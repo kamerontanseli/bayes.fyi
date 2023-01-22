@@ -286,7 +286,10 @@ export default function tTest() {
                     padding-left: 0;
                     text-indent: -1px;
                     border: 0;
+                    border-radius: 0;
                     margin-bottom: 8px;
+                    text-align: left;
+                    width: 100%;
                     border-bottom: 1px solid #c0c0c1;
                     outline: none;
                     font-size: 1em;
@@ -326,11 +329,7 @@ export default function tTest() {
                     color: #8e8e90;
                     text-align: right;
                     width: 80px;
-                }
-
-                .card-inputs__title input {
-                    text-align: left;
-                    width: 100%;
+                    font-size: 1em;
                 }
 
                 .card-actions {
@@ -345,6 +344,7 @@ export default function tTest() {
                     padding: 0;
                     font-weight: 400;
                     cursor: pointer;
+                    font-size: 1em;
                 }
 
                 .radio-options {
@@ -515,7 +515,7 @@ export default function tTest() {
                             </div>
                         ))}
                     </div>
-                    
+
                     <div className="card">
                         <div className="chart-grid">
                             <div>
