@@ -501,10 +501,10 @@ export default function tTest() {
                         </div>
                         {variantsResults.map((v, i) => (
                             <div className={`result result--${v.pValue <= significance ? `sig-${v.relativeDiff > 0 ? 'pos' : 'neg'}` : 'neutral'}`} key={i}>
-                                <p className="result-title">{v.pValue <= significance ? `Significant ${v.relativeDiff >= 0 ? 'positive' : 'negative'} result` : 'No significant difference'} (control vs {v.variant.name})</p>
+                                <p className="result-title">{v.pValue <= significance ? `Significant ${v.relativeDiff >= 0 ? 'positive' : 'negative'} result` : 'No significant difference'} (Control vs {v.variant.name})</p>
                                 {v.pValue <= significance ? (
                                     <p className="result-body">{v.variant.name}'s observed mean ({round(v.variant.mean)}) was {round(v.relativeDiff) * 100}% {v.relativeDiff > 0 ? 'higher' : 'lower'} than
-                                        control's mean of ({round(control.mean)}). You can be {(1 - significance) * 100}% confident
+                                        control's mean of ({round(control.mean)}). You can be {round(1 - v.pValue) * 100}% confident
                                         that this result is a consequence of the changes you made and not a result of
                                         random chance (p={v.pValue.toFixed(4)}).</p>
                                 ) : (
