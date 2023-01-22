@@ -504,14 +504,14 @@ export default function tTest() {
                                 <p className="result-title">{v.pValue <= significance ? `Significant ${v.relativeDiff >= 0 ? 'positive' : 'negative'} result` : 'No significant difference'} ({control.name} vs {v.variant.name})</p>
                                 {v.pValue <= significance ? (
                                     <p className="result-body">{v.variant.name}'s observed mean ({round(v.variant.mean)}) was {round(v.relativeDiff) * 100}% {v.relativeDiff > 0 ? 'higher' : 'lower'} than
-                                        {control.name}'s mean of ({round(control.mean)}). You can be {round(1 - v.pValue) * 100}% confident
+                                        {' '}{control.name}'s mean of ({round(control.mean)}). You can be {round(1 - v.pValue) * 100}% confident
                                         that this result is a consequence of the changes you made and not a result of
                                         random chance (p={v.pValue.toFixed(4)}).</p>
                                 ) : (
                                     <p className="result-body">The observed difference in means ({round(v.relativeDiff) * 100}%)
                                         isn't big enough to declare a significant winner. There is no real
                                         difference in performance between {control.name} and {v.variant.name} or you need to collect
-                                        more data (p={v.pValue.toFixed(4)}).v</p>
+                                        more data (p={v.pValue.toFixed(4)}).</p>
                                 )}
                             </div>
                         ))}
