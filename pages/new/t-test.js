@@ -325,6 +325,7 @@ export default function tTest() {
                     border: 0;
                     border-bottom: 1px solid #c0c0c1;
                     outline: none;
+                    border-radius: 0;
                     font-family: monospace;
                     color: #8e8e90;
                     text-align: right;
