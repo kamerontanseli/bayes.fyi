@@ -124,29 +124,11 @@ export default function tTest() {
                 count: 1128
             },
             {
-                name: 'Blood Tests',
+                name: 'Treatment',
                 mean: 61.8059,
                 stddev: 56.2002,
                 count: 1224
             },
-            {
-                name: 'Supplements',
-                mean: 43.5993,
-                stddev: 46.5578,
-                count: 1144
-            },
-            {
-                name: 'Premature Ejac',
-                mean: 76.0424,
-                stddev: 101.8017,
-                count: 1132
-            },
-            {
-                name: 'Weight Loss',
-                mean: 81.945,
-                stddev: 117.3758,
-                count: 1138
-            }
         ]
     })
 
